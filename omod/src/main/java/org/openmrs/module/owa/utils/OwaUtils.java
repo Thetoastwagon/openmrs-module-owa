@@ -9,15 +9,34 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * This class contains utility methods that support various actions that affect OWAs
- * for example OWA installation
+ * This class contains utility methods that support various actions that affect
+ * OWAs for example OWA installation
  */
 public class OwaUtils {
+
 	/**
-	 * Removes the version number from the file name of the OWA and adds .zip file extension
-	 *
+	 * Gets the file name from the OWA installation url
+	 * 
+	 * @param installUrl URL to where the OWA zip can be downloaded
+	 * @return the file name of the owa
+	 */
+	public static String getFileName(String installUrl) {
+		String passedFileName = null;
+		if (installUrl.contains("file_path=")) {
+			passedFileName = StringUtils.substringBetween(installUrl, "file_path=", ".zip");
+		} else {
+			passedFileName = FilenameUtils.getName(installUrl);
+		}
+		return removeVersionNumber(passedFileName);
+	}
+
+	/**
+	 * Removes the version number from the file name of the OWA and adds .zip file
+	 * extension
+	 * 
 	 * @param passedFileName File name of owa that may contain owa version number
-	 * @return the file name of the owa with the version number removed and .zip extension
+	 * @return the file name of the owa with the version number removed and .zip
+	 *         extension
 	 */
 	public static String removeVersionNumber(String passedFileName) {
 		String fileName = getStrippedFileName(passedFileName);
@@ -29,7 +48,7 @@ public class OwaUtils {
 
 	/**
 	 * Removes the version number from the file name of the OWA
-	 *
+	 * 
 	 * @param passedFileName File name of owa that may contain owa version number
 	 * @return the file name of the owa with the version number removed
 	 */
