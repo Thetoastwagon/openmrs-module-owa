@@ -52,37 +52,39 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.openmrs.module.owa.utils.OwaUtils;
+
 public class DefaultAppManager implements AppManager {
-	
+
 	private static final Log log = LogFactory.getLog(DefaultAppManager.class);
-	
+
 	@Autowired(required = false)
 	private List<OwaListener> owaListeners;
-	
+
 	/**
 	 * In-memory singleton list holding state for apps.
 	 */
 	private List<App> apps = new ArrayList();
-	
+
 	private void init() {
 		reloadApps();
 	}
-	
+
 	public void setOwaListeners(List<OwaListener> owaListeners) {
 		this.owaListeners = owaListeners;
 	}
-	
+
 	@Override
 	public List<App> getApps() {
 		String baseUrl = getAppBaseUrl();
-		
+
 		for (App app : apps) {
 			app.setBaseUrl(baseUrl);
 		}
-		
+
 		return apps;
 	}
-	
+
 	@Override
 	public void installApp(File file, String fileName, String rootPath) throws IOException {
 		App app;
@@ -101,7 +103,7 @@ public class DefaultAppManager implements AppManager {
 		// Delete if app is already installed
 		// If app specified 'deployed.owa.name', use it instead of default name based on package name
 		// ---------------------------------------------------------------------
-		String deployedName = fileName.substring(0, fileName.lastIndexOf('.'));
+		String deployedName = OwaUtils.getStrippedFileName(fileName.substring(0, fileName.lastIndexOf('.')));
 		if(StringUtils.isNotBlank(app.getDeployedName())){
 			deployedName = app.getDeployedName();
 			//delete app deployed in the same directory
@@ -143,7 +145,7 @@ public class DefaultAppManager implements AppManager {
 
 		reloadApps(); // Reload app state
 	}
-	
+
 	private void unzip(File file, String dest) throws IOException {
 		try (ZipFile zip = new ZipFile(file)) {
 			Enumeration<? extends ZipArchiveEntry> entries = zip.getEntries();
@@ -164,7 +166,7 @@ public class DefaultAppManager implements AppManager {
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean exists(String appName) {
 		for (App app : getApps()) {
@@ -174,7 +176,7 @@ public class DefaultAppManager implements AppManager {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean deleteApp(String name) {
 		for (App app : getApps()) {
@@ -203,22 +205,22 @@ public class DefaultAppManager implements AppManager {
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	@Override
 	public String getAppFolderPath() {
 		String appFolderPath = Context.getAdministrationService().getGlobalProperty(KEY_APP_FOLDER_PATH);
-		
+
 		File folder = new File(appFolderPath);
 		if (!folder.exists()) {
 			setAppFolderPath(appFolderPath); // If the global property is set, make sure the folder exists
 		}
-		
+
 		return appFolderPath;
 	}
-	
+
 	@Override
 	public void setAppFolderPath(String appFolderPath) {
 		if (!appFolderPath.isEmpty()) {
@@ -234,31 +236,31 @@ public class DefaultAppManager implements AppManager {
 		}
 		Context.getAdministrationService().saveGlobalProperty(new GlobalProperty(KEY_APP_FOLDER_PATH, appFolderPath));
 	}
-	
+
 	@Override
 	public String getAppBaseUrl() {
 		return Context.getAdministrationService().getGlobalProperty(KEY_APP_BASE_URL);
 	}
-	
+
 	@Override
 	public void setAppBaseUrl(String appBaseUrl) {
 		Context.getAdministrationService().saveGlobalProperty(new GlobalProperty(KEY_APP_BASE_URL, appBaseUrl));
 	}
-	
+
 	@Override
 	public String getAppStoreUrl() {
 		return Context.getAdministrationService().getGlobalProperty(KEY_APP_STORE_URL, DEFAULT_APP_STORE_URL);
 	}
-	
+
 	@Override
 	public void setAppStoreUrl(String appStoreUrl) {
 		Context.getAdministrationService().saveGlobalProperty(new GlobalProperty(KEY_APP_STORE_URL, appStoreUrl));
 	}
-	
+
 	// -------------------------------------------------------------------------
 	// Supportive methods
 	// -------------------------------------------------------------------------
-	
+
 	/**
 	 * Sets the list of apps with detected apps from the file system.
 	 */

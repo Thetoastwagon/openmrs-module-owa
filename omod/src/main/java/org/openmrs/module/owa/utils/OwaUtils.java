@@ -13,21 +13,18 @@ import org.apache.commons.lang.StringUtils;
  * for example OWA installation
  */
 public class OwaUtils {
-
 	/**
-	 * Gets the file name from the OWA installation url
+	 * Removes the version number from the file name of the OWA and adds .zip file extension
 	 *
-	 * @param installUrl URL to where the OWA zip can be downloaded
-	 * @return the file name of the owa
+	 * @param passedFileName File name of owa that may contain owa version number
+	 * @return the file name of the owa with the version number removed and .zip extension
 	 */
-	public static String getFileName(String installUrl) {
-		String passedFileName = null;
-		if (installUrl.contains("file_path=")) {
-			passedFileName = StringUtils.substringBetween(installUrl, "file_path=", ".zip");
-		} else {
-			passedFileName = FilenameUtils.getName(installUrl);
+	public static String removeVersionNumber(String passedFileName) {
+		String fileName = getStrippedFileName(passedFileName);
+		if (fileName != null && !fileName.contains(".zip")) {
+			fileName += ".zip";
 		}
-		return removeVersionNumber(passedFileName);
+		return fileName;
 	}
 
 	/**
@@ -36,12 +33,10 @@ public class OwaUtils {
 	 * @param passedFileName File name of owa that may contain owa version number
 	 * @return the file name of the owa with the version number removed
 	 */
-	public static String removeVersionNumber(String passedFileName) {
+	public static String getStrippedFileName(String passedFileName) {
 		String[] tokens = passedFileName.split("((-|[_])+[0-9])|[\\s]");
 		String fileName = tokens[0];
-		if (fileName != null && !fileName.contains(".zip")) {
-			fileName += ".zip";
-		}
 		return fileName;
 	}
+
 }
